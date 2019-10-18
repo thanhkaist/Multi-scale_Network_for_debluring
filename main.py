@@ -94,7 +94,7 @@ def test(model, dataloader):
             sharp_img_s2 = images['sharp_image_s2']
             sharp_img_s3 = images['sharp_image_s3']
 
-            # pdb.set_trace()
+            #pdb.set_trace()
 
             blur_img_s1 = Variable(blur_img_s1.cuda(), volatile=False)
             blur_img_s2 = Variable(blur_img_s2.cuda(), volatile=False)
@@ -104,8 +104,8 @@ def test(model, dataloader):
             sharp_img_s3 = Variable(sharp_img_s3.cuda())
             output = model(blur_img_s1)
 
-        output = unnormalize(output)
-        im_hr = unnormalize(sharp_img_s1)
+        output = unnormalize(output[0])
+        im_hr = unnormalize(sharp_img_s1[0])
         psnr, ssim = psnr_ssim_from_sci(output, im_hr)
         avg_psnr += psnr
         avg_ssim += ssim
@@ -179,8 +179,16 @@ def train(args):
             sharp_img_s1 = images['sharp_image_s1']
             sharp_img_s2 = images['sharp_image_s2']
             sharp_img_s3 = images['sharp_image_s3']
+            
+            #pdb.set_trace()
+            # import matplotlib.pyplot as plt
+            #plt.imshow(unnormalize(blur_img_s1[0]))
+            #plt.imshow(unnormalize(blur_img_s2[0]))
+            #plt.imshow(unnormalize(blur_img_s3[0]))
+            #plt.imshow(unnormalize(sharp_img_s1[0]))
+            #plt.imshow(unnormalize(sharp_img_s2[0]))
+            #plt.imshow(unnormalize(sharp_img_s3[0]))
 
-            # pdb.set_trace()
             blur_img_s1 = Variable(blur_img_s1.cuda())
             blur_img_s2 = Variable(blur_img_s2.cuda())
             blur_img_s3 = Variable(blur_img_s3.cuda())

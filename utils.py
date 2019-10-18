@@ -105,21 +105,19 @@ class AverageMeter():
         return reduce(lambda x, y: x + y, self.__var) / len(self.__var)
 
 
-def unnormalize(img):
-    out = img.cpu()
-    out = out.data.squeeze(0)
+def unnormalize(gpu_tensor):
+    out = gpu_tensor.data.cpu().numpy()
 
-    mean = [0.5, 0.5, 0.5]
-    std = [0.5, 0.5, 0.5]
-    for t, m, s in zip(out, mean, std):
-        t.mul_(s).add_(m)
+    # mean = [0.5, 0.5, 0.5]
+    # std = [0.5, 0.5, 0.5]
+    #for t, m, s in zip(out, mean, std):
+    #    t.mul_(s).add_(m)
 
-    out = out.numpy()
-    out *= 255.0
-    out = out.clip(0, 255)
+    nor = out*255.0
+    nor = nor.clip(0, 255)
 
-    out = out[:, 4:-4, 4:-4].transpose(1, 2, 0) #[..., ::-1]
-    return out
+    nor = nor.transpose(1, 2, 0) 
+    return nor
 
 
 def psnr_ssim_from_sci(img1, img2, padding=4, y_channels = False):
@@ -157,3 +155,9 @@ def psnr_ssim_from_sci(img1, img2, padding=4, y_channels = False):
         ss = ssim(img1,img2,multichannel=True)
 
     return (ps, ss)
+
+def output_psnr_mse(img_orig, img_out,max_val = 1.0):
+    squared_error = np.square(img_orig - img_out)
+    mse = np.mean(squared_error)
+    psnr = 10 * np.log10(max_val / mse)
+    return psnr

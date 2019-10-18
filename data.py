@@ -126,12 +126,12 @@ class GoProDataset(Dataset):
             sharp_image_s1 = transforms.ToTensor()(sharp_image_s1).mul(1.0)
 
             # normalization [-1,1]
-            blur_image_s1 = (blur_image_s1 / 255.0 - 0.5) * 2
-            sharp_image_s1 = (sharp_image_s1 / 255.0 - 0.5) * 2
-            blur_image_s2 = (blur_image_s2 / 255.0 - 0.5) * 2
-            sharp_image_s2 = (sharp_image_s2 / 255.0 - 0.5) * 2
-            blur_image_s3 = (blur_image_s3 / 255.0 - 0.5) * 2
-            sharp_image_s3 = (sharp_image_s3 / 255.0 - 0.5) * 2
+            # blur_image_s1 = (blur_image_s1 / 255.0 - 0.5) * 2
+            # sharp_image_s1 = (sharp_image_s1 / 255.0 - 0.5) * 2
+            # blur_image_s2 = (blur_image_s2 / 255.0 - 0.5) * 2
+            # sharp_image_s2 = (sharp_image_s2 / 255.0 - 0.5) * 2
+            # blur_image_s3 = (blur_image_s3 / 255.0 - 0.5) * 2
+            # sharp_image_s3 = (sharp_image_s3 / 255.0 - 0.5) * 2
 
             return {'blur_image_s1': blur_image_s1, 'blur_image_s2': blur_image_s2, 'blur_image_s3': blur_image_s3,
                     'sharp_image_s1': sharp_image_s1, 'sharp_image_s2': sharp_image_s2,

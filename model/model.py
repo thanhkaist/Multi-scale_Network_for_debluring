@@ -24,7 +24,7 @@ class UpsampleBlock(nn.Module):
         super(UpsampleBlock, self).__init__()
         self.conv = nn.Conv2d(in_channels, in_channels * up_scale ** 2, kernel_size=3, padding=1)
         self.pixel_suffle = nn.PixelShuffle(up_scale)
-        self.tanh = nn.Tanh()
+        self.tanh = nn.ReLU()
 
     def forward(self, x):
         x = self.conv(x)
