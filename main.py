@@ -16,9 +16,13 @@ import time
 import pdb
 parser = argparse.ArgumentParser(description='Single Image Super Resolution')
 
+
+parser.add_argument('model_type',choices=['one_scale_lsc','multi_scale','multi_scale_lsc'])
+parser.add_argument('--saveDir', default='./result_onescale_lsc', help='datasave directory')
+
 # train data
 parser.add_argument('--dataDir', default='data/train', help='dataset directory')
-parser.add_argument('--saveDir', default='./result_onescale_lsc', help='datasave directory')
+
 
 # validation data
 parser.add_argument('--HR_valDataroot', required=False,
@@ -36,7 +40,7 @@ parser.add_argument('--nChannel', type=int, default=3, help='number of color cha
 parser.add_argument('--patchSize', type=int, default=64, help='patch size')
 
 parser.add_argument('--nThreads', type=int, default=8, help='number of threads for data loading')
-parser.add_argument('--batchSize', type=int, default=8, help='input batch size for training')
+parser.add_argument('--batchSize', type=int, default=4, help='input batch size for training')
 parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
 parser.add_argument('--epochs', type=int, default=200, help='number of epochs to train')
 parser.add_argument('--lrDecay', type=int, default=100, help='epoch of half lr')
@@ -47,6 +51,8 @@ parser.add_argument('--period', type=int, default=10, help='period of evaluation
 parser.add_argument('--scale', type=int, default=2, help='scale output size /input size')
 parser.add_argument('--gpu', type=int, default=0, help='gpu index')
 parser.add_argument('--multi', type=int, default=0, help='multi gpu')
+
+
 args = parser.parse_args()
 
 if args.gpu == 0:
@@ -81,7 +87,7 @@ class LrScheduler():
         return lr
 
 
-def test(model, dataloader):
+def test(model, dataloader,one_scale = True):
     avg_psnr = 0
     avg_ssim = 0
     count = 0
@@ -102,7 +108,10 @@ def test(model, dataloader):
             sharp_img_s1 = Variable(sharp_img_s1.cuda())
             sharp_img_s2 = Variable(sharp_img_s2.cuda())
             sharp_img_s3 = Variable(sharp_img_s3.cuda())
-            output = model(blur_img_s1)
+            if one_scale:
+                output = model(blur_img_s1)
+            else:
+                output,_,_ = model(blur_img_s1,blur_img_s2,blur_img_s3)
 
         output = unnormalize(output[0])
         im_hr = unnormalize(sharp_img_s1[0])
@@ -119,7 +128,18 @@ def test(model, dataloader):
 def train(args):
     # define model
     # my_model = model.EDSR()
-    my_model = model.OneScale(3,True)
+    one_scale = False
+
+    if args.model_type == 'one_scale':
+        my_model = model.OneScale(3,True)
+        one_scale = True
+    elif args.model_type == 'multi_scale':
+        my_model = model.MultiScale(False)
+    elif args.model_type == 'multi_scale_lsc':
+        my_model = model.MultiScale(True)
+    else:
+        raise Exception("Model type is not supported: {}".format(args.model_type))
+
     my_model.apply(weights_init)
     no_params = no_of_parameters(my_model)
 
@@ -152,6 +172,15 @@ def train(args):
     # load function
     lossfunction = nn.L1Loss()
     lossfunction.cuda()
+
+    lossfunction1 = nn.MSELoss()
+    lossfunction1.cuda()
+
+    def loss_multi_function(sharp1, sharp2,sharp3,sharp_label_s1,sharp_label_s2,sharp_label_s3, beta1 = 1, beta2= 1):
+        loss1 = lossfunction1(sharp1,sharp_label_s1)
+        loss2 = lossfunction1(sharp2, sharp_label_s2)
+        loss3 = lossfunction1(sharp3, sharp_label_s3)
+        return loss1+beta1*loss2+ beta2*loss3
 
     # optimizer
     optimizer = optim.Adam(my_model.parameters(), lr=args.lr)
@@ -197,8 +226,13 @@ def train(args):
             sharp_img_s3 = Variable(sharp_img_s3.cuda())
 
             my_model.zero_grad()
-            output = my_model(blur_img_s1)
-            loss = lossfunction(output, sharp_img_s1)
+            if one_scale:
+                output = my_model(blur_img_s1)
+                loss = lossfunction(output, sharp_img_s1)
+            else:
+                sharp_s1,sharp_s2,sharp_s3 = my_model(blur_img_s1,blur_img_s2,blur_img_s3)
+                loss = loss_multi_function(sharp_s1,sharp_s2,sharp_s3,sharp_img_s1,sharp_img_s2,sharp_img_s3)
+
             total_loss = loss
             total_loss.backward()
             optimizer.step()
@@ -213,7 +247,7 @@ def train(args):
         save.log_csv('train',epoch+1,learning_rate,avg_loss.sum(),avg_time.sum()/60)
         if (epoch + 1) % args.period == 0:
             my_model.eval()
-            avg_psnr, avg_ssim = test(my_model, testdataloader)
+            avg_psnr, avg_ssim = test(my_model, testdataloader,one_scale)
             my_model.train()
             log = "*** [{} / {}] \tVal PSNR: {:.4f} \tVal SSIM: {:.4f} ".format(epoch + 1, args.epochs, avg_psnr,
                                                                                 avg_ssim)
