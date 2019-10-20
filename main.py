@@ -17,7 +17,7 @@ import pdb
 parser = argparse.ArgumentParser(description='Single Image Super Resolution')
 
 
-parser.add_argument('model_type',choices=['one_scale_lsc','multi_scale','multi_scale_lsc'])
+parser.add_argument('model_type',choices=['one_scale','one_scale_lsc','multi_scale','multi_scale_lsc'])
 parser.add_argument('--saveDir', default='./result_onescale_lsc', help='datasave directory')
 
 # train data
@@ -131,6 +131,9 @@ def train(args):
     one_scale = False
 
     if args.model_type == 'one_scale':
+        my_model = model.OneScale(3,False)
+        one_scale = True
+    elif args.model_type == 'one_scale_lsc':
         my_model = model.OneScale(3,True)
         one_scale = True
     elif args.model_type == 'multi_scale':
