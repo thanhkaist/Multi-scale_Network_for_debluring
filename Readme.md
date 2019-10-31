@@ -2,8 +2,8 @@ EE838 HOME WORK 2
 ======================
 ### Prerequisite
 
-Dowload data set from the link: 
-Unzip GoPro dataset to **data** folder such that we have
+Dowload data set from the link: : https://www.dropbox.com/s/u842yorwmap7xij/GOPRO_Large.zip?dl=0\
+Unzip GoPro dataset to **data** folder such that we have:
 - data/train : train data
 - data/test : test data
 
