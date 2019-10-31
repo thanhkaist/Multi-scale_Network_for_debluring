@@ -42,7 +42,7 @@ parser.add_argument('--patchSize', type=int, default=64, help='patch size')
 parser.add_argument('--nThreads', type=int, default=8, help='number of threads for data loading')
 parser.add_argument('--batchSize', type=int, default=4, help='input batch size for training')
 parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
-parser.add_argument('--epochs', type=int, default=200, help='number of epochs to train')
+parser.add_argument('--epochs', type=int, default=400, help='number of epochs to train')
 parser.add_argument('--lrDecay', type=int, default=100, help='epoch of half lr')
 parser.add_argument('--decayType', default='inv', help='lr decay function')
 parser.add_argument('--lossType', default='L1', help='Loss type')
@@ -127,7 +127,6 @@ def test(model, dataloader,one_scale = True):
 
 def train(args):
     # define model
-    # my_model = model.EDSR()
     one_scale = False
 
     if args.model_type == 'one_scale':
@@ -173,7 +172,7 @@ def train(args):
     start_epoch = last_epoch
 
     # load function
-    lossfunction = nn.L1Loss()
+    lossfunction = nn.MSELoss()
     lossfunction.cuda()
 
     lossfunction1 = nn.MSELoss()
@@ -183,11 +182,10 @@ def train(args):
         loss1 = lossfunction1(sharp1,sharp_label_s1)
         loss2 = lossfunction1(sharp2, sharp_label_s2)
         loss3 = lossfunction1(sharp3, sharp_label_s3)
-        return loss1+beta1*loss2+ beta2*loss3
+        return (loss1+beta1*loss2+ beta2*loss3)/6
 
     # optimizer
     optimizer = optim.Adam(my_model.parameters(), lr=args.lr)
-    # optimizer = optim.SGD(my_model.parameters(), lr=args.lr,momentum=0.9,weight_decay=0)  # this of
     lr_cheduler = LrScheduler(args.lr, 'inv', args.lrDecay)
 
     # log var
@@ -211,15 +209,6 @@ def train(args):
             sharp_img_s1 = images['sharp_image_s1']
             sharp_img_s2 = images['sharp_image_s2']
             sharp_img_s3 = images['sharp_image_s3']
-            
-            #pdb.set_trace()
-            # import matplotlib.pyplot as plt
-            #plt.imshow(unnormalize(blur_img_s1[0]))
-            #plt.imshow(unnormalize(blur_img_s2[0]))
-            #plt.imshow(unnormalize(blur_img_s3[0]))
-            #plt.imshow(unnormalize(sharp_img_s1[0]))
-            #plt.imshow(unnormalize(sharp_img_s2[0]))
-            #plt.imshow(unnormalize(sharp_img_s3[0]))
 
             blur_img_s1 = Variable(blur_img_s1.cuda())
             blur_img_s2 = Variable(blur_img_s2.cuda())
