@@ -99,8 +99,6 @@ def test(args):
         output = unnormalize(output[0])
         im_hr = unnormalize(sharp_img_s1[0])
         psnr, ssim = psnr_ssim_from_sci(output, im_hr)
-        avg_psnr += psnr
-        avg_ssim += ssim
         count = count + 1
         out = Image.fromarray(np.uint8(output), mode='RGB')
         out.save("val/%s/%s/DB_img_%03d.png"%(args.model_type,args.saveDir,count))
