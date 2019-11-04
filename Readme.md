@@ -2,14 +2,18 @@ EE838 HOME WORK 2
 ======================
 ### Prerequisite
 
-Dowload data set from the link: : https://www.dropbox.com/s/u842yorwmap7xij/GOPRO_Large.zip?dl=0\
+Dowload data set from the link: : https://www.dropbox.com/s/u842yorwmap7xij/GOPRO_Large.zip?dl=0 \
+Create data folder:
+
+```mkdir data``` 
+
 Unzip GoPro dataset to **data** folder such that we have:
 - data/train : train data
 - data/test : test data
 
 Set up environment:
 
-```conda create -s deblur python=3.6```\
+```conda create -n deblur python=3.6```\
 ```conda activate deblur```\
 ```pip install -r requirement.txt```
 
@@ -33,13 +37,22 @@ Multi scale with long skip connection
 ```./multi_scale_with_lsc.sh```
 
 ### How to test 
-We provide pretrain model at url:
+I provide pretrained model at url: https://drive.google.com/file/d/1OrtRLABEVb-nLHf39CamDKp4ayrxIDi9/view?usp=sharing
 
-upzip the model to src folder and run:
+upzip the pretrained model to **src** folder such that we have these folders:
+- one_scale1
+- one_scale_lsc1
+- multi_scale1
+- multi_scale_lsc1
+- multi_scale_lsc1000
+
+Run test:
 
 ```./test_model.sh```
 
-In case that you want to test your train model, read the test_model.sh and modify the pretrained_model path.
+All the result will be store in **val** folder
+
+In case that you want to test your model, read the test_model.sh and modify the pretrained_model path.
 
 ### PSNR, SSIM, MS-SSIM
 I used **SKIMAGE** library for calculate PSNR and SSIM 
