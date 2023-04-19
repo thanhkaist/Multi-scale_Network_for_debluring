@@ -1,6 +1,5 @@
-Multi-scale Network for debluring
+# Multi-scale Network for debluring
 
-======================
 ### Prerequisite
 
 Dowload data set from the link: : https://www.dropbox.com/s/u842yorwmap7xij/GOPRO_Large.zip?dl=0 \
