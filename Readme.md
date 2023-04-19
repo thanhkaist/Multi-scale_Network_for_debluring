@@ -1,4 +1,5 @@
-EE838 HOME WORK 2
+Multi-scale Network for debluring
+
 ======================
 ### Prerequisite
 
@@ -64,7 +65,3 @@ from skimage.measure import compare_psnr as psnr
 
 For MS-SSIM, I used **Tensorflow** code which is available at: https://github.com/tensorflow/models/blob/master/research/compression/image_encoder/msssim.py
 The code is hard copy to **utils.py**, so we don't need to worry about the dependency. 
-
- 
-### Result
-
